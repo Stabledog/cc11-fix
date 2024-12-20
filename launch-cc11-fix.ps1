@@ -12,7 +12,7 @@ function Start-PythonScript {
     if (Test-Path $pythonPath) {
         if (Test-Path $scriptPath) {
             try {
-                Start-Process -FilePath $pythonPath -ArgumentList "$scriptPath $uniqueArg", "run" -WindowStyle Hidden
+                Start-Process -FilePath $pythonPath -ArgumentList "$scriptPath $uniqueArg run" -WindowStyle Hidden
                 Write-Output "Python script started successfully."
             } catch {
                 Write-Error "Failed to start Python script: $_"
@@ -29,18 +29,37 @@ function Start-PythonScript {
 }
 
 # Function to check for an existing instance using a unique argument
-function Check-ExistingInstance {
+function Test-ExistingInstance {
     $uniqueArg = "--unique-cc11-filter"
-    $existingProcess = Get-Process -ErrorAction SilentlyContinue | Where-Object {
+    Write-Output "Checking for existing instances with argument: $uniqueArg"
+
+    # Enter the debugger
+    Wait-Debugger
+
+    # Log all running processes with their command line arguments
+    Get-Process -ErrorAction SilentlyContinue | ForEach-Object {
+        Write-Output "Process ID: $($_.Id), Process Name: $($_.ProcessName), Command Line: $($_.CommandLine)"
+    }
+
+    $existingProcesses = Get-Process -ErrorAction SilentlyContinue | Where-Object {
         $_.ProcessName -like "*python*" -and $_.CommandLine -like "*$uniqueArg*"
     }
 
-    if ($existingProcess) {
-        Write-Error "Another instance of the script is already running."
+    if ($existingProcesses) {
+        Write-Output "Found existing processes:"
+        $existingProcesses | ForEach-Object { Write-Output "Process ID: $($_.Id), Command Line: $($_.CommandLine)" }
+    } else {
+        Write-Output "No existing processes found."
+    }
+
+    if ($existingProcesses.Count -gt 0) {
+        $originalProcess = $existingProcesses[-1]  # Select the last item in the array
+        Write-Error "Another instance of the script is already running. To terminate the running instance, use the following command:"
+        Write-Error "Stop-Process -Id $($originalProcess.Id)"
         exit 1
     }
 }
 
 # Main script execution
-Check-ExistingInstance
+Test-ExistingInstance
 Start-PythonScript
