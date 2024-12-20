@@ -13,8 +13,7 @@
             //"pythonPath": "/c/ProgramData/chocolatey/bin/python3.12",
             "console": "integratedTerminal",
             "args": [
-                "run",
-                "KOMPLETE KONTROL - 1 1"
+                "run"
             ],
             "env": {
                 "COMSPEC": "C:\\Windows\\System32\\cmd.exe",

@@ -23,8 +23,8 @@ def find_output_port(pattern):
     raise ValueError(f"No output port matching pattern '{pattern}' found.")
 
 def filter_midi():
-    input_port_pattern = r"KOMPLETE KONTROL \d+ \d+"
-    output_port_pattern = r"midi-filtered-cc11 \d+ \d+"
+    input_port_pattern = r"KOMPLETE KONTROL (- )?\d+ \d+"
+    output_port_pattern = r"midi-filtered-cc11.*"
     
     try:
         input_port_name = find_input_port(input_port_pattern)
