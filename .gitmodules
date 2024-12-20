@@ -4,3 +4,6 @@
 [submodule "mido-src"]
 	path = mido-src
 	url = github:mido/mido
+[submodule "virtualMIDI"]
+	path = virtualMIDI
+	url = github:stabledog/cc11-fix.virtualMIDI
