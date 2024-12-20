@@ -14,7 +14,7 @@
             "console": "integratedTerminal",
             "args": [
                 "run",
-                "KOMPLETE KONTROL"
+                "KOMPLETE KONTROL - 1 1"
             ],
             "env": {
                 "COMSPEC": "C:\\Windows\\System32\\cmd.exe",
