@@ -1,5 +1,4 @@
 import mido
-import rtmidi
 
 def list_ports():
     print("Available input ports:")
@@ -7,15 +6,13 @@ def list_ports():
         print(f"  {name}")
 
 def filter_midi(input_port_name):
-    virtual_output_port_name = 'midi-filtered-cc11'
+    output_port_name = 'midi-filtered-cc11'
     try:
-        midiout = rtmidi.MidiOut()
-        midiout.open_virtual_port(virtual_output_port_name)
-        
-        with mido.open_input(input_port_name) as inport:
-            for msg in inport:
-                if not (msg.type == 'control_change' and msg.control == 11):
-                    midiout.send_message(msg.bytes())
+        with mido.open_output(output_port_name) as midiout:
+            with mido.open_input(input_port_name) as inport:
+                for msg in inport:
+                    if not (msg.type == 'control_change' and msg.control == 11):
+                        midiout.send(msg)
     except (IOError, OSError) as e:
         print(f"Error: {e}")
         list_ports()
