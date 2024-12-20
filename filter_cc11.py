@@ -1,24 +1,23 @@
-import mido
-
-def list_ports():
-    print("Available input ports:")
-    for name in mido.get_input_names():
-        print(f"  {name}")
-    print("\nAvailable output ports:")
-    for name in mido.get_output_names():
-        print(f"  {name}")
+import argparse
+from cc11_fix.filter import list_ports, filter_midi
 
 def main():
-    input_port_name = 'Your MIDI Input Device Name'
-    output_port_name = 'loopMIDI Port'
+    parser = argparse.ArgumentParser(description='Filter out CC11 messages from MIDI input.')
+    subparsers = parser.add_subparsers(dest='command', required=True)
 
-    try:
-        with mido.open_input(input_port_name) as inport, mido.open_output(output_port_name) as outport:
-            for msg in inport:
-                if not (msg.type == 'control_change' and msg.control == 11):
-                    outport.send(msg)
-    except (IOError, OSError) as e:
-        print(f"Error: {e}")
+    # Subparser for the "run" command
+    run_parser = subparsers.add_parser('run', help='Run the MIDI filter')
+    run_parser.add_argument('input_port', help='Name of the MIDI input port')
+    run_parser.add_argument('output_port', help='Name of the MIDI output port')
+
+    # Subparser for the "list-ports" command
+    list_ports_parser = subparsers.add_parser('list-ports', help='List available MIDI ports')
+
+    args = parser.parse_args()
+
+    if args.command == 'run':
+        filter_midi(args.input_port, args.output_port)
+    elif args.command == 'list-ports':
         list_ports()
 
 if __name__ == '__main__':
