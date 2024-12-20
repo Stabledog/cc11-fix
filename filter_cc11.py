@@ -8,7 +8,6 @@ def main():
     # Subparser for the "run" command
     run_parser = subparsers.add_parser('run', help='Run the MIDI filter')
     run_parser.add_argument('input_port', help='Name of the MIDI input port')
-    run_parser.add_argument('output_port', help='Name of the MIDI output port')
 
     # Subparser for the "list-ports" command
     list_ports_parser = subparsers.add_parser('list-ports', help='List available MIDI ports')
@@ -16,7 +15,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'run':
-        filter_midi(args.input_port, args.output_port)
+        filter_midi(args.input_port)
     elif args.command == 'list-ports':
         list_ports()
 
