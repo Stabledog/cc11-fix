@@ -8,6 +8,14 @@ param (
     [string]$operation = "help"
 )
 
+function Test-AdminMode {
+    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+# Your installation steps go here
+
 function Check-ExecutionPolicy {
     $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
     if ($currentPolicy -notin ('RemoteSigned', 'Unrestricted')) {
@@ -177,6 +185,11 @@ function Main {
             Show-Help
         }
     }
+}
+
+if (-not (Test-AdminMode)) {
+    Write-Host "This script requires administrator privileges. Please run PowerShell as an administrator and try again." -ForegroundColor Red
+    exit 1
 }
 
 Main -operation $operation
