@@ -10,7 +10,8 @@ param (
 
 function Check-ExecutionPolicy {
     $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
-    if ($currentPolicy -ne 'RemoteSigned' -and $currentPolicy -ne 'Unrestricted') {
+    if ($currentPolicy -notin ('RemoteSigned', 'Unrestricted')) {
+    #if ($currentPolicy -ne 'RemoteSigned' -and $currentPolicy -ne 'Unrestricted') {
         Write-Output "Current execution policy: $currentPolicy"
         Write-Output "The script requires the execution policy to be set to 'RemoteSigned' or 'Unrestricted'."
         Write-Output "Please run the following command in an elevated PowerShell (run as Administrator):"
@@ -112,6 +113,17 @@ function Configure-LoopMIDIPort {
     }
 }
 
+function Create-Launcher {
+    $pythonPath = "C:\ProgramData\chocolatey\bin\python.exe"
+    $WScriptShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WScriptShell.CreateShortcut("$env:USERPROFILE\Desktop\MIDI filter CC11.lnk")
+    $Shortcut.TargetPath = $pythonPath
+    $Shortcut.Arguments = "c:\projects\cc11-fix\filter_cc11.py"
+    $Shortcut.WorkingDirectory = "c:\projects\cc11-fix"
+    $Shortcut.WindowStyle = 1
+    $Shortcut.Save()
+}
+
 function Show-Help {
     Write-Output "Usage: .\cc11-fix-setup.ps1 <operation>"
     Write-Output "Operations:"
@@ -121,8 +133,8 @@ function Show-Help {
     Write-Output "  install-python     Install Python"
     Write-Output "  install-pip        Install pip packages"
     Write-Output "  install-loopmidi   Install loopMIDI"
-    Write-Output "  configure-port     Configure loopMIDI virtual port"
-    exit 0
+    Write-Output "  configure-port     Configure loopMIDI port"
+    Write-Output "  create-launcher    Create desktop shortcut for MIDI filter CC11"
 }
 
 function Main {
@@ -138,6 +150,7 @@ function Main {
             Install-PipPackages
             Install-LoopMIDI
             Configure-LoopMIDIPort
+            Create-Launcher
         }
         "check-policy" {
             Check-ExecutionPolicy
@@ -156,6 +169,9 @@ function Main {
         }
         "configure-port" {
             Configure-LoopMIDIPort
+        }
+        "create-launcher" {
+            Create-Launcher
         }
         default {
             Show-Help
