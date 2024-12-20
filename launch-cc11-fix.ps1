@@ -10,7 +10,7 @@ function Start-PythonScript {
     if (Test-Path $pythonPath) {
         if (Test-Path $scriptPath) {
             try {
-                Start-Process -FilePath $pythonPath -ArgumentList $scriptPath, "run"
+                Start-Process -FilePath $pythonPath -ArgumentList $scriptPath, "run" -WindowStyle Hidden
                 Write-Output "Python script started successfully."
             } catch {
                 Write-Error "Failed to start Python script: $_"
