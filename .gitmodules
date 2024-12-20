@@ -1,3 +1,6 @@
 [submodule "mido"]
 	path = mido
 	url = git@github.com:mido/mido
+[submodule "mido-src"]
+	path = mido-src
+	url = github:mido/mido
