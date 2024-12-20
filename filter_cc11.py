@@ -3,6 +3,7 @@ from cc11_fix.filter import list_ports, filter_midi
 
 def run_filter():
     parser = argparse.ArgumentParser(description='Filter out CC11 messages from MIDI input.')
+    parser.add_argument('--unique-cc11-filter', action='store_true', help='Unique argument to identify the process')
     subparsers = parser.add_subparsers(dest='command', required=True)
 
     # Subparser for the "run" command
