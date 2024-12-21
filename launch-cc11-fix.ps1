@@ -31,32 +31,35 @@ function Start-PythonScript {
 # Function to check for an existing instance using a unique argument
 function Test-ExistingInstance {
     $uniqueArg = "--unique-cc11-filter"
-    Write-Output "Checking for existing instances with argument: $uniqueArg"
+    $scriptName = "filter_cc11.py"
+    Write-Output "Checking for existing instances with script: $scriptName and argument: $uniqueArg"
 
-    # Enter the debugger
-    Wait-Debugger
-
-    # Log all running processes with their command line arguments
-    Get-Process -ErrorAction SilentlyContinue | ForEach-Object {
-        Write-Output "Process ID: $($_.Id), Process Name: $($_.ProcessName), Command Line: $($_.CommandLine)"
-    }
-
-    $existingProcesses = Get-Process -ErrorAction SilentlyContinue | Where-Object {
-        $_.ProcessName -like "*python*" -and $_.CommandLine -like "*$uniqueArg*"
+    # Log all running processes with their command line arguments using WMI
+    $existingProcesses = Get-WmiObject Win32_Process | Where-Object {
+        $_.Name -like "*python*" -and $_.CommandLine -like "*$scriptName*" -and $_.CommandLine -like "*$uniqueArg*"
     }
 
     if ($existingProcesses) {
         Write-Output "Found existing processes:"
-        $existingProcesses | ForEach-Object { Write-Output "Process ID: $($_.Id), Command Line: $($_.CommandLine)" }
+        $existingProcesses | ForEach-Object { Write-Output "Process ID: $($_.ProcessId), Command Line: $($_.CommandLine)" }
     } else {
         Write-Output "No existing processes found."
     }
 
     if ($existingProcesses.Count -gt 0) {
-        $originalProcess = $existingProcesses[-1]  # Select the last item in the array
-        Write-Error "Another instance of the script is already running. To terminate the running instance, use the following command:"
-        Write-Error "Stop-Process -Id $($originalProcess.Id)"
-        exit 1
+        Write-Warning "Another instance of the script is already running."
+        $response = Read-Host "Do you want to terminate all other instances? (y/n)"
+        if ($response -eq 'y') {
+            $currentProcessId = $PID
+            $existingProcesses | Where-Object { $_.ProcessId -ne $currentProcessId } | ForEach-Object {
+                Write-Output "Terminating process ID: $($_.ProcessId)"
+                Stop-Process -Id $_.ProcessId -Force
+            }
+            Write-Output "All other instances terminated."
+        } else {
+            Write-Error "Another instance of the script is already running. Exiting."
+            exit 1
+        }
     }
 }
 
