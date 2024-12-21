@@ -16,7 +16,7 @@ function Test-AdminMode {
 
 # Your installation steps go here
 
-function Check-ExecutionPolicy {
+function Test-ExecutionPolicy {
     $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
     if ($currentPolicy -notin ('RemoteSigned', 'Unrestricted')) {
     #if ($currentPolicy -ne 'RemoteSigned' -and $currentPolicy -ne 'Unrestricted') {
@@ -33,7 +33,7 @@ function Install-Chocolatey {
         Write-Output "Installing Chocolatey..."
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
         Write-Output "Chocolatey installed successfully."
     } catch {
         Write-Error "Failed to install Chocolatey: $_"
@@ -66,7 +66,6 @@ function Install-PipPackages {
 function Install-LoopMIDI {
     try {
         Write-Output "Downloading loopMIDI..."
-        $loopMIDIInstallerPath = "$env:TEMP\loopMIDISetup.exe"
         Invoke-WebRequest -Uri "https://www.tobias-erichsen.de/wp-content/uploads/2020/01/loopMIDISetup_1_0_16_27.zip" -OutFile "$env:TEMP\loopMIDI.zip"
         
         Write-Output "Extracting loopMIDI..."
@@ -104,7 +103,7 @@ function Find-LoopMIDIExecutable {
     return $null
 }
 
-function Configure-LoopMIDIPort {
+function Set-LoopMIDIPort {
     try {
         Write-Output "Configuring loopMIDI virtual port..."
         $loopMIDIPath = Find-LoopMIDIExecutable
@@ -121,7 +120,7 @@ function Configure-LoopMIDIPort {
     }
 }
 
-function Create-Launcher {
+function New-Launcher {
     $pythonPath = "C:\ProgramData\chocolatey\bin\python.exe"
     $WScriptShell = New-Object -ComObject WScript.Shell
     $Shortcut = $WScriptShell.CreateShortcut("$env:USERPROFILE\Desktop\MIDI filter CC11.lnk")
@@ -152,7 +151,7 @@ function Main {
 
     switch ($operation) {
         "all" {
-            Check-ExecutionPolicy
+            Test-ExecutionPolicy
             Install-Chocolatey
             Install-Python
             Install-PipPackages
@@ -176,10 +175,10 @@ function Main {
             Install-LoopMIDI
         }
         "configure-port" {
-            Configure-LoopMIDIPort
+            Set-LoopMIDIPort
         }
         "create-launcher" {
-            Create-Launcher
+            New-Launcher
         }
         default {
             Show-Help
