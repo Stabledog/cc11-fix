@@ -1,5 +1,6 @@
 import mido
 import re
+import sys
 
 def list_ports():
     """
@@ -72,5 +73,6 @@ def filter_midi():
                 for msg in inport:
                     if not (msg.type == 'control_change' and msg.control == 11):
                         midiout.send(msg)
+                        sys.stdout.write('.')
     except (IOError, OSError, ValueError) as e:
         print(f"Error: {e}")
