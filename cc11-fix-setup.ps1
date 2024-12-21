@@ -1,3 +1,5 @@
+#! /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+
 # cc11-fix-setup.ps1
 # Ensure the execution policy is set to 'RemoteSigned' or 'Unrestricted' before running this script.
 # Run the following command in an elevated PowerShell (run as Administrator):
@@ -121,14 +123,27 @@ function Set-LoopMIDIPort {
 }
 
 function New-Launcher {
-    $pythonPath = "C:\ProgramData\chocolatey\bin\python.exe"
+    $powershellScriptPath = "c:\projects\cc11-fix\launch-cc11-fix.ps1"
     $WScriptShell = New-Object -ComObject WScript.Shell
-    $Shortcut = $WScriptShell.CreateShortcut("$env:USERPROFILE\Desktop\MIDI filter CC11.lnk")
-    $Shortcut.TargetPath = $pythonPath
-    $Shortcut.Arguments = "c:\projects\cc11-fix\filter_cc11.py"
-    $Shortcut.WorkingDirectory = "c:\projects\cc11-fix"
-    $Shortcut.WindowStyle = 1
-    $Shortcut.Save()
+    $desktopShortcut = "$env:USERPROFILE\Desktop\MIDI filter CC11.lnk"
+    $startupShortcut = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\MIDI filter CC11.lnk"
+    $startupDesc = "Komplete Kontrol MIDI CC11 filter"
+
+    # Create desktop shortcut
+    $desktopShortcutObj = $WScriptShell.CreateShortcut($desktopShortcut)
+    $desktopShortcutObj.TargetPath = "powershell.exe"
+    $desktopShortcutObj.Arguments = "-File `"$powershellScriptPath`""
+    $desktopShortcutObj.IconLocation = "C:\Windows\System32\imageres.dll, 109"
+    $desktopShortcutObj.Description = $startupDesc
+    $desktopShortcutObj.Save()
+
+    # Create startup shortcut
+    $startupShortcutObj = $WScriptShell.CreateShortcut($startupShortcut)
+    $startupShortcutObj.TargetPath = "powershell.exe"
+    $startupShortcutObj.Arguments = "-File `"$powershellScriptPath`""
+    $desktopShortcutObj.IconLocation = "C:\Windows\System32\imageres.dll, 109"
+    $desktopShortcutObj.Description = $startupDesc
+    $startupShortcutObj.Save()
 }
 
 function Show-Help {
@@ -141,7 +156,7 @@ function Show-Help {
     Write-Output "  install-pip        Install pip packages"
     Write-Output "  install-loopmidi   Install loopMIDI"
     Write-Output "  configure-port     Configure loopMIDI port"
-    Write-Output "  create-launcher    Create desktop shortcut for MIDI filter CC11"
+    Write-Output "  create-launcher    Create desktop and startup shortcuts for MIDI filter CC11"
 }
 
 function Main {

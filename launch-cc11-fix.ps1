@@ -1,3 +1,4 @@
+#! /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
 # launch-cc11-fix.ps1
 # Starts the midi filtering to remove bad cc11 messages from Komplete Kontrol keyboard.
 # Connect the DAW to the 'midi-filtered-cc11' device instead of the normal keyboard device.
